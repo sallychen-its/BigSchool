@@ -1,0 +1,33 @@
+﻿@model IEnumerable<BTLab5.Models.Course>
+
+@{
+    ViewBag.Title = "Attending";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <ul class="course">
+        @foreach (var item in Model)
+        {
+            <li>
+                <div class="date">
+                    <div class="month">
+                        @item.DateTime.ToString("MM")
+                    </div>
+                    <div class="day">
+                        @item.DateTime.ToString("dd")
+                    </div>
+                </div>
+                <div class="details">
+                    <span class="lecture">
+                        @item.Name
+                    </span>
+                    <br />
+                    <span class="category">
+                        @item.Category.Name
+                    </span>
+                </div>
+            </li>
+        }
+    </ul>
+</div>

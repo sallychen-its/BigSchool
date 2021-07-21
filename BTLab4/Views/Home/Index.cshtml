@@ -1,0 +1,100 @@
+﻿@using BTLab5.Models
+@model IEnumerable<BTLab5.Models.Course>
+@{
+    DataSQL db = new DataSQL();
+    ViewBag.Title = "Home Page";
+}
+
+<h2> Tất Cả Khóa Học</h2>
+
+<div class="row">
+    <ul class="course">
+        @foreach (var item in Model)
+        {
+            <li>
+                <div class="date">
+                    <div class="month">
+                        @item.DateTime.ToString("MM")
+                    </div>
+                    <div class="day">
+                        @item.DateTime.ToString("dd")
+                    </div>
+                </div>
+                <div class="details">
+                    <span class="lecture">
+                        @item.Name
+                        @if (item.isLogin)
+                        {
+                            if (item.isShowFollow)
+                            {
+                                <button data-user-id="@item.LecturerId" id="follow_@item.LecturerId" class="btn btn-success btn-sm js-tongle-follow">Follow</button>
+                            }
+                            else
+                            {
+                                <button data-user-id="@item.LecturerId" id="follow_@item.LecturerId" class="btn btn-danger btn-sm js-tongle-follow">UnFollow</button>
+                            }
+
+                        }
+                    </span>
+                    <br />
+                    <span class="category">
+                        @item.Category.Name
+                    </span>
+                    @if (item.isLogin)
+                    {
+                        if (item.isShowGoing)
+                        {
+                            <button data-course-id="@item.Id" id="attendance_@item.Id" class="btn btn-info btn-sm js-tongle-attendance">Going</button>
+                        }
+                        else
+                        {
+                            <button data-course-id="@item.Id" id="attendance_@item.Id" class="btn btn-danger btn-sm js-tongle-attendance">Cancel</button>
+                        }
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $(".js-tongle-attendance").click(function (e) {
+                var button = $(e.target)
+                var id = button.attr("data-course-id")
+                $.post("/api/attendances", { Id: id })
+                    .done(function (data) {
+                        if (data == "going") {
+                            $("#attendance_" + id).text("Cancel")
+                            $("#attendance_" + id).removeClass("btn-info")
+                            $("#attendance_" + id).addClass("btn-danger")
+                        } else {
+                            $("#attendance_" + id).text("Going")
+                            $("#attendance_" + id).removeClass("btn-danger")
+                            $("#attendance_" + id).addClass("btn-info")
+                        }
+                    })
+            })
+
+            $(".js-tongle-follow").click(function (e) {
+                var button = $(e.target)
+                var id = button.attr("data-user-id")
+                $.post("/api/followings", { FolloweeId: id })
+                    .done(function (data) {
+                        if (data == "follow") {
+                            $("#follow_" + id).text("UnFollow")
+                            $("#follow_" + id).removeClass("btn-success")
+                            $("#follow_" + id).addClass("btn-danger")
+                        } else if (data == "cannot") {
+                            alert("Bạn Không Thể Tự Follow Bạn Được!")
+                        } else {
+                            $("#follow_" + id).text("Follow")
+                            $("#follow_" + id).removeClass("btn-danger")
+                            $("#follow_" + id).addClass("btn-success")
+                        }  
+                    })
+            })
+        })
+    </script>
+}
